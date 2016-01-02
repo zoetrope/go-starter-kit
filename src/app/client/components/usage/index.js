@@ -8,7 +8,6 @@ import { setConfig } from '../../actions';
 
 class Usage extends Component {
 
-  /*eslint-disable */
   static onEnter({store, nextState, replaceState, callback}) {
     fetch('/api/v1/conf').then((r) => {
       return r.json();
@@ -18,7 +17,6 @@ class Usage extends Component {
       callback();
     });
   }
-  /*eslint-enable */
 
   render() {
     return <div className={usage}>

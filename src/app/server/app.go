@@ -134,17 +134,19 @@ func (app *App) Run() {
 	app.Engine.Run(":" + app.Conf.UString("port"))
 }
 
-// Custom renderer for Echo, to render html from bindata
+// Template is custom renderer for Echo, to render html from bindata
 type Template struct {
 	templates *template.Template
 }
 
+// NewTemplate creates a new template.
 func NewTemplate() *Template {
 	return &Template{
 		templates: binhtml.New(Asset, AssetDir).MustLoadDirectory("templates"),
 	}
 }
 
+// Render renders template
 func (t *Template) Render(w io.Writer, name string, data interface{}) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
