@@ -33,10 +33,11 @@ kill_app:
 	@kill `cat $(PID_APP)` || true
 
 serve: clean $(BUNDLE)
+	@make kill
 	@make restart
 	@BABEL_ENV=dev node hot.proxy & echo $$! > $(PID_WDS)
 	@$(NODE_BIN)/webpack --watch & echo $$! > $(PID_WP)
-	@fswatch --event=Updated $(GO_FILES) $(TEMPLATES) | xargs -n1 -I{} make restart || make kill_app
+	@fswatch --event=Updated $(GO_FILES) $(TEMPLATES) $(BUNDLE) | xargs -n1 -I{} make restart || make kill_app
 
 restart: BINDATA_FLAGS += -debug
 restart: $(BINDATA)
