@@ -3,9 +3,9 @@ var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var cssLoader = ExtractTextPlugin.extract(
-  'style-loader',
+  'style-loader!',
   'css-loader?module&localIdentName=[name]__[local]___[hash:base64:5]' +
-    '&disableStructuralMinification' +
+  '&disableStructuralMinification' +
   '!autoprefixer-loader!' +
   'stylus-loader?paths=src/app/client/css/&import=./ctx'
 );
@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === 'production') {
     })
   ]);
   var cssLoader = ExtractTextPlugin.extract(
-    'style-loader',
+    'style-loader!',
     'css-loader?module&disableStructuralMinification' +
       '!autoprefixer-loader' +
       '!stylus-loader?paths=src/app/client/css/&import=./ctx'
@@ -54,7 +54,10 @@ var config  = {
       {
         test: /\.jsx?$/,
         include: path.join(__dirname, 'src/app/client'),
-        loaders: ['babel']
+        loader: 'babel',
+        query:{
+          presets: ['react', 'es2015', 'stage-0']
+        }
       }
     ]
   },

@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import Router from 'react-router';
 import { Provider } from 'react-redux';
-import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
+import DevTools from './devtools';
 import { createHistory } from 'history';
 import toString from './toString';
 import { Promise } from 'when';
@@ -18,29 +18,28 @@ export function run() {
 
   const store = createStore(window['--app-initial']);
 
-  if (process.env.NODE_ENV !== 'production'){
+  if (process.env.NODE_ENV !== 'production') {
     store.subscribe(() => {
       console.log('%c[STORE]', 'color: green', store.getState());
     });
   }
 
+  var monitor = null;
+  if (process.env.NODE_ENV !== 'production') {
+    monitor = <DevTools />;
+  }
+
   render(
-    <Provider store={store} >
-      <Router history={createHistory()}>{createRoutes({store, first: { time: true }})}</Router>
-    </Provider>,
+    <div>
+      <Provider store={store}>
+        <div>
+          <Router history={createHistory()}>{createRoutes({store, first: {time: true}})}</Router>
+          {monitor}
+        </div>
+      </Provider>
+    </div>,
     document.getElementById('app')
   );
-
-  if (process.env.NODE_ENV !== 'production'){
-    const node = document.createElement('div');
-    document.body.appendChild(node);
-    render(
-      <DebugPanel top right bottom>
-        <DevTools store={store} monitor={LogMonitor} visibleOnLoad={false}/>
-      </DebugPanel>,
-      node
-    );
-  }
 }
 
 // Export it to render on the Golang sever, keep the name sync with -
