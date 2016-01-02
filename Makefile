@@ -1,6 +1,8 @@
 BIN = $(GOPATH)/bin
 NODE_BIN = $(shell npm bin)
-PID = .pid
+PID_APP = .pid
+PID_WDS = .pid_wds
+PID_WP = .pid_wp
 GO_FILES = $(filter-out src/app/server/bindata.go, $(shell find src/app -type f -name "*.go"))
 TEMPLATES = $(wildcard src/app/server/data/templates/*.html)
 BINDATA = src/app/server/bindata.go
@@ -23,12 +25,14 @@ $(BIN)/app: $(BUNDLE) $(BINDATA)
 	@go install -ldflags "-w -X main.buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.gittag=`git describe --tags || true` -X main.githash=`git rev-parse HEAD || true`" app
 
 kill:
-	@kill `cat $(PID)` || true
+	@kill `cat $(PID_APP)` || true
+	@kill `cat $(PID_WDS)` || true
+	@kill `cat $(PID_WP)` || true
 
 serve: clean $(BUNDLE)
 	@make restart
-	@BABEL_ENV=dev node hot.proxy &
-	@$(NODE_BIN)/webpack --watch &
+	@BABEL_ENV=dev node hot.proxy & echo $$! > $(PID_WDS)
+	@$(NODE_BIN)/webpack --watch & echo $$! > $(PID_WP)
 	@fswatch $(GO_FILES) $(TEMPLATES) | xargs -n1 -I{} make restart || make kill
 
 restart: BINDATA_FLAGS += -debug
@@ -36,7 +40,7 @@ restart: $(BINDATA)
 	@make kill
 	@echo restart the app...
 	@go install app
-	@$(BIN)/app run & echo $$! > $(PID)
+	@$(BIN)/app run & echo $$! > $(PID_APP)
 
 $(BINDATA):
 	$(BIN)/go-bindata $(BINDATA_FLAGS) -o=$@ src/app/server/data/...
